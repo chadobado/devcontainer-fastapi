@@ -1,11 +1,306 @@
 openapi: 3.0.2
 info:
-  title: OpenAI plugin for a simple todo app
-  description: Todo app for managing your tasks on ChatGPT
+  title: OpenAI plugin for conducting research, including todos and local file management
+  description: Research app for managing your tasks and local filesystem on ChatGPT
   version: 1.0.0
   servers:
-    - url: https://minsa110-laughing-eureka-979q457rx6q3p954-8000.preview.app.github.dev
+    - url: https://chadobado-organic-waddle-vp7x6jgwx9hwqv-8000.preview.app.github.dev
 paths:
+/cwd:
+    post:
+      summary: Set the current working directory
+      description: Accepts a string and sets it as the current working directory
+      operationId: set_cwd
+      parameters:
+        - in: query
+          name: dir_path
+          schema:
+            type: string
+          required: true
+          description: The path of the directory to set as the current working directory
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+    get:
+      summary: Get the current working directory
+      operationId: get_cwd
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cwd:
+                    type: string
+  /directories:
+    get:
+      summary: Get a list of files and directories in the current directory
+      operationId: get_current_directory_contents
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contents:
+                    type: array
+                    items:
+                      type: string
+  /directories/{dir_path}:
+    get:
+      summary: Get a list of files and directories in a specific directory
+      operationId: get_directory_contents
+      parameters:
+        - name: dir_path
+          in: path
+          required: true
+          description: The path of the directory to retrieve contents from
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contents:
+                    type: array
+                    items:
+                      type: string
+        "404":
+          description: Directory not found
+    post:
+      summary: Create a new directory
+      description: Accepts a string and creates a new directory at the specified path
+      operationId: create_directory
+      parameters:
+        - name: dir_path
+          in: path
+          required: true
+          description: The path of the directory to create
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+    delete:
+      summary: Delete a directory
+      description: Accepts a string and deletes the directory at the specified path
+      operationId: delete_directory
+      parameters:
+        - name: dir_path
+          in: path
+          required: true
+          description: The path of the directory to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: Directory not found
+    put:
+      summary: Rename a directory
+      description: Accepts two strings and renames the directory at the specified path
+      operationId: rename_directory
+      parameters:
+        - name: dir_path
+          in: path
+          required: true
+          description: The path of the directory to rename
+          schema:
+            type: string
+        - in: query
+          name: new_dir_path
+          schema:
+            type: string
+          required: true
+          description: The new path of the directory
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: Directory not found
+  /files/{file_path}:
+     post:
+      summary: Create a new file
+      description: Accepts a file path, an optional file, and an optional file content to create a new file
+      operationId: create_file
+      parameters:
+        - name: file_path
+          in: path
+          required: true
+          description: The path of the file to create
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+                file_content:
+                  type: string
+                  description: The content of the file to create
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+                required:
+                  - result
+    get:
+      summary: Read a file
+      description: Accepts a string and reads the file at the specified path
+      operationId: read_file
+      parameters:
+        - name: file_path
+          in: path
+          required: true
+          description: The path of the file to read
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: File not found
+    put:
+      summary: Update a file
+      description: Accepts a file and updates the file at the specified path
+      operationId: update_file
+      parameters:
+        - name: file_path
+          in: path
+          required: true
+          description: The path of the file to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: File not found
+    delete:
+      summary: Delete a file
+      description: Accepts a string and deletes the file at the specified path
+      operationId: delete_file
+      parameters:
+        - name: file_path
+          in: path
+          required: true
+          description: The path of the file to delete
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: File not found
+    put:
+      summary: Rename a file
+      description: Accepts two strings and renames the file at the specified path
+      operationId: rename_file
+      parameters:
+        - name: file_path
+          in: path
+          required: true
+          description: The path of the file to rename
+          schema:
+            type: string
+        - in: query
+          name: new_file_path
+          schema:
+            type: string
+          required: true
+          description: The new path of the file
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+        "404":
+          description: File not found
   /todos:
     post:
       summary: Create a new TODO item

@@ -6,5 +6,9 @@
             ],
             "url": "https://raw.githubusercontent.com/minsa110/ai-plugin-schema/main/ai-plugin-schema.json"
         }
-    ]
+    ],
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter"
+    },
+    "python.formatting.provider": "none"
 }
